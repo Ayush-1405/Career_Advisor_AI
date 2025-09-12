@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchDashboardStats } from '../../lib/api';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -9,10 +10,10 @@ export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
-    resumeUploaded: true,
-    suggestionsAvailable: 12,
-    skillsAssessed: true,
-    completionRate: 85
+    resumeUploaded: false,
+    suggestionsAvailable: 0,
+    skillsAssessed: false,
+    completionRate: 0
   });
 
   useEffect(() => {
@@ -23,7 +24,22 @@ export default function DashboardPage() {
     } else {
       router.push('/auth/login');
     }
-    setIsLoading(false);
+    // Load stats after auth
+    (async () => {
+      try {
+        const data = await fetchDashboardStats();
+        setStats({
+          resumeUploaded: !!data.resumeUploaded,
+          suggestionsAvailable: Number(data.suggestionsAvailable || 0),
+          skillsAssessed: !!data.skillsAssessed,
+          completionRate: Number(data.completionRate || 0)
+        });
+      } catch (e) {
+        // Keep defaults
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, [router]);
 
   const handleLogout = () => {
@@ -256,3 +272,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

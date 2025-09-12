@@ -1,24 +1,21 @@
-<<<<<<< HEAD
 package com.advisor.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
 public class EmailService {
+  private final JavaMailSender mailSender;
 
-	public void sendOtpEmail(String email, String otp) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
+  public void sendPlainText(String to, String subject, String body) {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setTo(to);
+    message.setSubject(subject);
+    message.setText(body);
+    mailSender.send(message);
+  }
 }
-=======
-package com.advisor.service;
 
-public class EmailService {
-
-	public void sendOtpEmail(String email, int otp) {
-		// TODO Auto-generated method stub
-		
-	}
-
-}
->>>>>>> 9c3495dfddaf30f5f49bcae2a62b9d6f7d0a15ca

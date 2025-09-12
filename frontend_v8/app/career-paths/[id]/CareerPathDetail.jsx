@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchCareerPathById } from '../../../lib/api';
 import Link from 'next/link';
 
 export default function CareerPathDetail({ pathId }) {
@@ -20,115 +21,12 @@ export default function CareerPathDetail({ pathId }) {
     setIsLoading(false);
   }, [pathId]);
 
-  const loadCareerPath = () => {
-    const mockCareerPaths = {
-      '1': {
-        id: 1,
-        title: 'Software Engineer',
-        category: 'Technology',
-        level: 'Entry to Senior',
-        description: 'Software Engineers design, develop, and maintain software applications using various programming languages and frameworks. They work on everything from web applications to mobile apps and enterprise systems.',
-        averageSalary: '$75,000 - $150,000',
-        growth: '+22%',
-        popularity: 95,
-        requiredSkills: ['Programming', 'Problem Solving', 'Version Control', 'Testing', 'Debugging', 'Agile/Scrum'],
-        keyResponsibilities: [
-          'Write clean, efficient, and maintainable code',
-          'Debug and troubleshoot applications',
-          'Collaborate with cross-functional teams',
-          'Participate in code reviews and technical discussions',
-          'Design and implement software solutions',
-          'Write and maintain technical documentation'
-        ],
-        careerProgression: [
-          { level: 'Junior Developer', salary: '$60,000 - $80,000', experience: '0-2 years', description: 'Learn fundamentals and work on simple features' },
-          { level: 'Mid-Level Developer', salary: '$80,000 - $120,000', experience: '2-5 years', description: 'Handle complex features and mentor juniors' },
-          { level: 'Senior Developer', salary: '$120,000 - $180,000', experience: '5+ years', description: 'Lead technical decisions and architecture' },
-          { level: 'Tech Lead', salary: '$150,000 - $200,000', experience: '7+ years', description: 'Manage team and set technical direction' }
-        ],
-        topCompanies: ['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'Netflix', 'Uber', 'Airbnb'],
-        education: 'Bachelor\'s in Computer Science or related field',
-        dailyTasks: [
-          'Review and write code',
-          'Attend team meetings and standups',
-          'Collaborate with designers and product managers',
-          'Test and debug applications',
-          'Research new technologies',
-          'Participate in code reviews'
-        ],
-        workEnvironment: 'Most software engineers work in office environments or remotely. The work involves significant computer time and collaboration with team members.',
-        jobOutlook: 'Excellent job prospects with 22% growth expected over the next decade, much faster than average for all occupations.',
-        learningPath: [
-          { step: 1, title: 'Learn Programming Fundamentals', duration: '3-6 months', description: 'Master a programming language like Python, JavaScript, or Java' },
-          { step: 2, title: 'Build Projects', duration: '6-12 months', description: 'Create portfolio projects to demonstrate skills' },
-          { step: 3, title: 'Learn Frameworks', duration: '3-6 months', description: 'Study popular frameworks like React, Node.js, or Django' },
-          { step: 4, title: 'Practice System Design', duration: '6-12 months', description: 'Understand how to design scalable systems' },
-          { step: 5, title: 'Gain Experience', duration: 'Ongoing', description: 'Work on real projects and continue learning' }
-        ],
-        certifications: [
-          'AWS Certified Developer',
-          'Microsoft Certified: Azure Developer',
-          'Google Cloud Professional Developer',
-          'Oracle Certified Professional Java SE'
-        ],
-        image: 'https://readdy.ai/api/search-image?query=Professional%20software%20engineer%20working%20on%20computer%20coding%20programming%20modern%20office%20environment%20with%20multiple%20monitors%20clean%20workspace%20technology%20atmosphere%20detailed%20view&width=800&height=400&seq=sw-eng-detail-1&orientation=landscape'
-      },
-      '2': {
-        id: 2,
-        title: 'Data Scientist',
-        category: 'Analytics',
-        level: 'Mid to Senior',
-        description: 'Data Scientists analyze complex data sets to extract meaningful insights and drive business decisions using statistical methods, machine learning, and advanced analytics techniques.',
-        averageSalary: '$90,000 - $160,000',
-        growth: '+35%',
-        popularity: 88,
-        requiredSkills: ['Python/R', 'Statistics', 'Machine Learning', 'Data Visualization', 'SQL', 'Mathematics'],
-        keyResponsibilities: [
-          'Analyze large datasets to identify trends and patterns',
-          'Build predictive models and algorithms',
-          'Create data visualizations and dashboards',
-          'Present findings to stakeholders',
-          'Collaborate with engineering teams to implement models',
-          'Design experiments and A/B tests'
-        ],
-        careerProgression: [
-          { level: 'Data Analyst', salary: '$70,000 - $90,000', experience: '0-2 years', description: 'Analyze data and create reports' },
-          { level: 'Data Scientist', salary: '$90,000 - $130,000', experience: '2-5 years', description: 'Build models and derive insights' },
-          { level: 'Senior Data Scientist', salary: '$130,000 - $180,000', experience: '5+ years', description: 'Lead data science projects' },
-          { level: 'Principal Data Scientist', salary: '$180,000 - $250,000', experience: '8+ years', description: 'Drive data strategy and innovation' }
-        ],
-        topCompanies: ['Netflix', 'Spotify', 'Uber', 'Airbnb', 'Tesla', 'LinkedIn', 'Pinterest', 'Shopify'],
-        education: 'Master\'s in Data Science, Statistics, Mathematics, or related field',
-        dailyTasks: [
-          'Clean and preprocess data',
-          'Perform statistical analysis',
-          'Build and train machine learning models',
-          'Create visualizations and reports',
-          'Collaborate with business teams',
-          'Present insights to stakeholders'
-        ],
-        workEnvironment: 'Data Scientists typically work in collaborative environments with access to powerful computing resources and large datasets.',
-        jobOutlook: 'Outstanding growth prospects with 35% expected growth, driven by increasing demand for data-driven insights.',
-        learningPath: [
-          { step: 1, title: 'Master Statistics and Math', duration: '6-12 months', description: 'Build strong foundation in statistics and linear algebra' },
-          { step: 2, title: 'Learn Programming', duration: '3-6 months', description: 'Master Python or R for data analysis' },
-          { step: 3, title: 'Study Machine Learning', duration: '6-12 months', description: 'Learn ML algorithms and techniques' },
-          { step: 4, title: 'Practice on Real Data', duration: '6-12 months', description: 'Work on projects with real datasets' },
-          { step: 5, title: 'Specialize', duration: 'Ongoing', description: 'Focus on specific domains like NLP or computer vision' }
-        ],
-        certifications: [
-          'Google Data Analytics Certificate',
-          'IBM Data Science Professional Certificate',
-          'Microsoft Certified: Azure Data Scientist',
-          'SAS Certified Data Scientist'
-        ],
-        image: 'https://readdy.ai/api/search-image?query=Data%20scientist%20analyzing%20complex%20charts%20graphs%20statistical%20models%20on%20multiple%20computer%20screens%20with%20machine%20learning%20algorithms%20modern%20analytics%20office%20environment%20professional%20workspace%20detailed%20view&width=800&height=400&seq=data-sci-detail-1&orientation=landscape'
-      }
-    };
-
-    const path = mockCareerPaths[pathId];
-    if (path) {
-      setCareerPath(path);
+  const loadCareerPath = async () => {
+    try {
+      const data = await fetchCareerPathById(pathId);
+      setCareerPath(data || null);
+    } catch (e) {
+      setCareerPath(null);
     }
   };
 

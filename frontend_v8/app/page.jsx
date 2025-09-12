@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 9c3495dfddaf30f5f49bcae2a62b9d6f7d0a15ca
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
+
 
 export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,6 +18,8 @@ export default function Home() {
                 <i className="ri-brain-line text-white text-lg"></i>
               </div>
               <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CareerPath AI</span>
+              
+
             </div>
             
             {/* Desktop Navigation */}

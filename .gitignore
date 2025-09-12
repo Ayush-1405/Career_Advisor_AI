@@ -1,1 +1,47 @@
-node_modules
+# General
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+logs/
+
+# IDE/editor
+.idea/
+.vscode/
+.vs/
+*.iml
+.project
+.classpath
+
+# Environment files
+.env
+.env.*
+
+# Node/Next.js
+node_modules/
+.next/
+.turbo/
+.vercel/
+coverage/
+dist/
+build/
+tmp/
+
+# Frontend caches
+.cache/
+
+# Java/Maven
+target/
+**/target/
+*.class
+.scannerwork/
+
+# OS junk
+ehthumbs.db
+Icon?
+
+# Package manager debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

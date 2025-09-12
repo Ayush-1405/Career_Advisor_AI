@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { requestPasswordReset } from '../../../lib/api';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [step, setStep] = useState('email'); // 'email' or 'otp'
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -17,58 +16,18 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccess('');
 
-    // Simulate API call to send OTP
-    setTimeout(() => {
-      setSuccess('OTP sent to your email address');
-      setStep('otp');
+    try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const redirectBaseUrl = `${origin}/auth/reset-password`;
+      await requestPasswordReset(email, redirectBaseUrl);
+      setSuccess('If the email exists, a reset link has been sent. Please check your inbox.');
+    } catch (err) {
+      setError(err.message || 'Failed to request password reset');
+    } finally {
       setIsLoading(false);
-    }, 1500);
-  };
-
-  const handleOtpChange = (index, value) => {
-    if (value.length <= 1 && /^\d*$/.test(value)) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-
-      // Auto-focus next input
-      if (value && index < 5) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
     }
-  };
-
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      document.getElementById(`otp-${index - 1}`).focus();
-    }
-  };
-
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    const otpString = otp.join('');
-    
-    if (otpString.length !== 6) {
-      setError('Please enter complete 6-digit OTP');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    // Simulate OTP verification
-    setTimeout(() => {
-      if (otpString === '123456') {
-        setSuccess('OTP verified successfully! You can now reset your password.');
-        setTimeout(() => {
-          router.push('/auth/reset-password');
-        }, 2000);
-      } else {
-        setError('Invalid OTP. Please try again.');
-      }
-      setIsLoading(false);
-    }, 1500);
   };
 
   return (
@@ -101,15 +60,8 @@ export default function ForgotPasswordPage() {
               <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="ri-lock-unlock-line text-white text-2xl"></i>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {step === 'email' ? 'Reset Password' : 'Verify OTP'}
-              </h2>
-              <p className="text-gray-600">
-                {step === 'email' 
-                  ? 'Enter your email address to receive a reset code'
-                  : 'Enter the 6-digit code sent to your email'
-                }
-              </p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h2>
+              <p className="text-gray-600">Enter your email address to receive a reset link</p>
             </div>
 
             {error && (
@@ -130,85 +82,36 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            {step === 'email' ? (
-              <form onSubmit={handleEmailSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
+            <form onSubmit={handleEmailSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Sending OTP...
-                    </div>
-                  ) : (
-                    'Send Reset Code'
-                  )}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleOtpSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-4">
-                    Enter 6-digit OTP
-                  </label>
-                  <div className="flex justify-between space-x-2">
-                    {otp.map((digit, index) => (
-                      <input
-                        key={index}
-                        id={`otp-${index}`}
-                        type="text"
-                        value={digit}
-                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        className="w-12 h-12 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        maxLength="1"
-                      />
-                    ))}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Sending...
                   </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Verifying...
-                    </div>
-                  ) : (
-                    'Verify OTP'
-                  )}
-                </button>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => setStep('email')}
-                    className="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
-                  >
-                    Didn't receive code? Resend
-                  </button>
-                </div>
-              </form>
-            )}
+                ) : (
+                  'Send Reset Link'
+                )}
+              </button>
+            </form>
 
             <div className="mt-6 text-center">
               <Link href="/auth/login" className="text-gray-600 hover:text-blue-600 cursor-pointer">

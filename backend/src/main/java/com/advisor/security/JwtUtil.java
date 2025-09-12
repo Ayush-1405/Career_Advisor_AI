@@ -1,96 +1,58 @@
-<<<<<<< HEAD
 package com.advisor.security;
+
+//security/JwtUtil.java
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.function.Function;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
+@Value("${jwt.secret}")
+private String secret;
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+@Value("${jwt.expiration-ms}")
+private long expirationMs;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpirationInMs;
+private Key key;
 
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
-    }
-
-    public String generateToken(String email) {
-        return Jwts.builder()
-            .setSubject(email)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-            .compact();
-    }
-
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
-        return claimsResolver.apply(claims);
-    }
+@PostConstruct
+public void init() {
+ this.key = Keys.hmacShaKeyFor(secret.getBytes());
 }
-=======
-package com.advisor.security;
 
-import io.jsonwebtoken.*;
-import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.function.Function;
-
-@Component
-public class JwtUtil {
-    private  String SECRET_KEY = ""; // Use environment variable ideally
-    
-    public JwtUtil(String SECRET_KEY){
-    	this.SECRET_KEY="secret";
-    	System.out.println(SECRET_KEY);
-    };
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    public Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-    }
-
-    public Boolean validateToken(String token) {
-        try {
-            extractAllClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
+public String generateToken(String subject, Map<String,Object> claims) {
+ return Jwts.builder()
+     .setClaims(claims)
+     .setSubject(subject)
+     .setIssuedAt(new Date())
+     .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+     .signWith(key, SignatureAlgorithm.HS256)
+     .compact();
 }
->>>>>>> 9c3495dfddaf30f5f49bcae2a62b9d6f7d0a15ca
+
+public String extractSubject(String token) {
+ return Jwts.parserBuilder().setSigningKey(key).build()
+     .parseClaimsJws(token).getBody().getSubject();
+}
+
+public Claims extractAllClaims(String token) {
+ return Jwts.parserBuilder().setSigningKey(key).build()
+     .parseClaimsJws(token).getBody();
+}
+
+public boolean validate(String token) {
+ try {
+   Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+   return true;
+ } catch (JwtException | IllegalArgumentException e) {
+   return false;
+ }
+}
+}

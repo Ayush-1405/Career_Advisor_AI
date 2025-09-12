@@ -1,6 +1,21 @@
 {
-  "dependencies": {
-    "cross-env": "^10.0.0",
-    "next": "^15.4.5"
-  }
+  "name": "career-advisor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ayush-1405/Career_Advisor_AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Ayush-1405/Career_Advisor_AI/issues"
+  },
+  "homepage": "https://github.com/Ayush-1405/Career_Advisor_AI#readme"
 }

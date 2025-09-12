@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';
-
+import {} from 'lucide-react';
 function DownloadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,100 +17,37 @@ function DownloadContent() {
   useEffect(() => {
     // Check if user is logged in
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      generateReportData();
+    const token = localStorage.getItem('token');
+    if (savedUser && token) {
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      // Fetch report from backend
+      (async () => {
+        try {
+          const res = await fetch('http://localhost:8080/api/report/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ role: role || 'Career Report', name: parsed?.name })
+          });
+          if (!res.ok) throw new Error('Failed to fetch report');
+          const data = await res.json();
+          setReportData(data);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
     } else {
       router.push('/auth/login');
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [router]);
+  }, [router, role]);
 
-  const generateReportData = () => {
-    // Mock report data
-    const mockData = {
-      userInfo: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        date: new Date().toLocaleDateString(),
-        role: role || 'Career Report'
-      },
-      summary: {
-        overallScore: 85,
-        strengths: [
-          'Strong technical foundation in modern web technologies',
-          'Excellent problem-solving and analytical skills',
-          'Good communication and collaboration abilities',
-          'Proven track record of delivering quality projects'
-        ],
-        improvements: [
-          'Develop leadership and mentoring capabilities',
-          'Expand cloud computing and DevOps knowledge',
-          'Strengthen system design and architecture skills',
-          'Gain experience with machine learning technologies'
-        ]
-      },
-      skillsProfile: {
-        technical: [
-          { name: 'JavaScript', level: 90, category: 'Programming' },
-          { name: 'React', level: 85, category: 'Frontend' },
-          { name: 'Node.js', level: 80, category: 'Backend' },
-          { name: 'Python', level: 75, category: 'Programming' },
-          { name: 'SQL', level: 70, category: 'Database' },
-          { name: 'AWS', level: 65, category: 'Cloud' }
-        ],
-        soft: [
-          { name: 'Problem Solving', level: 90 },
-          { name: 'Communication', level: 85 },
-          { name: 'Teamwork', level: 80 },
-          { name: 'Leadership', level: 70 },
-          { name: 'Time Management', level: 85 }
-        ]
-      },
-      careerPath: {
-        currentRole: 'Senior Software Engineer',
-        targetRole: role || 'Technical Lead',
-        timeline: '6-12 months',
-        steps: [
-          'Complete system design course',
-          'Lead a cross-functional project',
-          'Mentor junior developers',
-          'Obtain cloud architecture certification',
-          'Build leadership portfolio'
-        ]
-      },
-      recommendations: [
-        {
-          category: 'Learning',
-          items: [
-            'Complete AWS Solutions Architect certification',
-            'Take advanced system design course',
-            'Practice technical interviewing',
-            'Join leadership development program'
-          ]
-        },
-        {
-          category: 'Experience',
-          items: [
-            'Volunteer to lead next project',
-            'Mentor 1-2 junior developers',
-            'Present at team meetings',
-            'Contribute to architecture decisions'
-          ]
-        },
-        {
-          category: 'Networking',
-          items: [
-            'Join local tech meetups',
-            'Connect with industry leaders on LinkedIn',
-            'Attend relevant conferences',
-            'Participate in online communities'
-          ]
-        }
-      ]
-    };
-    setReportData(mockData);
-  };
+  // removed mock generator; data is fetched from backend
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -119,56 +56,32 @@ function DownloadContent() {
   };
 
   const generatePDF = async () => {
-    setIsGenerating(true);
-    
-    // Simulate PDF generation
-    setTimeout(() => {
-      // In a real app, this would generate an actual PDF
-      const pdfContent = `
-        CAREER DEVELOPMENT REPORT
-        
-        Generated for: ${reportData.userInfo.name}
-        Date: ${reportData.userInfo.date}
-        Target Role: ${reportData.userInfo.role}
-        
-        EXECUTIVE SUMMARY
-        Overall Career Readiness Score: ${reportData.summary.overallScore}%
-        
-        KEY STRENGTHS:
-        ${reportData.summary.strengths.map(s => `• ${s}`).join('\n')}
-        
-        AREAS FOR IMPROVEMENT:
-        ${reportData.summary.improvements.map(i => `• ${i}`).join('\n')}
-        
-        TECHNICAL SKILLS ASSESSMENT:
-        ${reportData.skillsProfile.technical.map(s => `• ${s.name}: ${s.level}%`).join('\n')}
-        
-        CAREER PATH RECOMMENDATIONS:
-        Current Role: ${reportData.careerPath.currentRole}
-        Target Role: ${reportData.careerPath.targetRole}
-        Timeline: ${reportData.careerPath.timeline}
-        
-        DEVELOPMENT STEPS:
-        ${reportData.careerPath.steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}
-        
-        DETAILED RECOMMENDATIONS:
-        ${reportData.recommendations.map(cat => 
-          `${cat.category.toUpperCase()}:\n${cat.items.map(item => `• ${item}`).join('\n')}`
-        ).join('\n\n')}
-      `;
-      
-      const blob = new Blob([pdfContent], { type: 'text/plain' });
+    try {
+      setIsGenerating(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8080/api/report/pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: role || 'Career Report', name: user?.name })
+      });
+      if (!res.ok) throw new Error('Failed to generate report');
+      const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${reportData.userInfo.name}_Career_Report.txt`;
+      a.download = `${(reportData?.userInfo?.name || user?.name || 'User')}_Career_Report.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-      
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   if (isLoading) {

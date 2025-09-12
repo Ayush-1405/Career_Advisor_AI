@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchCareerPaths } from '../../lib/api';
 import Link from 'next/link';
 
 export default function CareerPathsPage() {
@@ -28,167 +29,17 @@ export default function CareerPathsPage() {
     filterAndSortPaths();
   }, [selectedCategory, searchTerm, sortBy, careerPaths]);
 
-  const loadCareerPaths = () => {
-    const mockCareerPaths = [
-      {
-        id: 1,
-        title: 'Software Engineer',
-        category: 'Technology',
-        level: 'Entry to Senior',
-        description: 'Design, develop, and maintain software applications using various programming languages and frameworks.',
-        averageSalary: '$75,000 - $150,000',
-        growth: '+22%',
-        popularity: 95,
-        requiredSkills: ['Programming', 'Problem Solving', 'Version Control', 'Testing'],
-        keyResponsibilities: [
-          'Write clean, efficient code',
-          'Debug and troubleshoot applications',
-          'Collaborate with cross-functional teams',
-          'Participate in code reviews'
-        ],
-        careerProgression: [
-          { level: 'Junior Developer', salary: '$60,000 - $80,000', experience: '0-2 years' },
-          { level: 'Mid-Level Developer', salary: '$80,000 - $120,000', experience: '2-5 years' },
-          { level: 'Senior Developer', salary: '$120,000 - $180,000', experience: '5+ years' },
-          { level: 'Tech Lead', salary: '$150,000 - $200,000', experience: '7+ years' }
-        ],
-        topCompanies: ['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple'],
-        education: 'Bachelor\'s in Computer Science or related field',
-        image: 'https://readdy.ai/api/search-image?query=Professional%20software%20engineer%20working%20on%20computer%20coding%20programming%20modern%20office%20environment%20with%20multiple%20monitors%20clean%20workspace%20technology%20atmosphere&width=400&height=300&seq=sw-eng-1&orientation=landscape'
-      },
-      {
-        id: 2,
-        title: 'Data Scientist',
-        category: 'Analytics',
-        level: 'Mid to Senior',
-        description: 'Analyze complex data sets to extract insights and drive business decisions using statistical methods and machine learning.',
-        averageSalary: '$90,000 - $160,000',
-        growth: '+35%',
-        popularity: 88,
-        requiredSkills: ['Python/R', 'Statistics', 'Machine Learning', 'Data Visualization'],
-        keyResponsibilities: [
-          'Analyze large datasets for trends',
-          'Build predictive models',
-          'Create data visualizations',
-          'Present findings to stakeholders'
-        ],
-        careerProgression: [
-          { level: 'Data Analyst', salary: '$70,000 - $90,000', experience: '0-2 years' },
-          { level: 'Data Scientist', salary: '$90,000 - $130,000', experience: '2-5 years' },
-          { level: 'Senior Data Scientist', salary: '$130,000 - $180,000', experience: '5+ years' },
-          { level: 'Principal Data Scientist', salary: '$180,000 - $250,000', experience: '8+ years' }
-        ],
-        topCompanies: ['Netflix', 'Spotify', 'Uber', 'Airbnb', 'Tesla'],
-        education: 'Master\'s in Data Science, Statistics, or related field',
-        image: 'https://readdy.ai/api/search-image?query=Data%20scientist%20analyzing%20charts%20graphs%20on%20computer%20screens%20with%20statistical%20models%20machine%20learning%20algorithms%20modern%20analytics%20office%20environment%20professional%20workspace&width=400&height=300&seq=data-sci-1&orientation=landscape'
-      },
-      {
-        id: 3,
-        title: 'Product Manager',
-        category: 'Management',
-        level: 'Mid to Senior',
-        description: 'Drive product strategy and coordinate cross-functional teams to deliver successful products to market.',
-        averageSalary: '$100,000 - $180,000',
-        growth: '+28%',
-        popularity: 82,
-        requiredSkills: ['Product Strategy', 'User Research', 'Analytics', 'Communication'],
-        keyResponsibilities: [
-          'Define product roadmap',
-          'Conduct market research',
-          'Coordinate with engineering teams',
-          'Analyze user feedback'
-        ],
-        careerProgression: [
-          { level: 'Associate PM', salary: '$80,000 - $110,000', experience: '0-2 years' },
-          { level: 'Product Manager', salary: '$110,000 - $150,000', experience: '2-5 years' },
-          { level: 'Senior PM', salary: '$150,000 - $200,000', experience: '5+ years' },
-          { level: 'Director of Product', salary: '$200,000 - $300,000', experience: '8+ years' }
-        ],
-        topCompanies: ['Apple', 'Google', 'Microsoft', 'Amazon', 'Salesforce'],
-        education: 'Bachelor\'s in Business, Engineering, or related field',
-        image: 'https://readdy.ai/api/search-image?query=Product%20manager%20leading%20team%20meeting%20with%20whiteboard%20strategy%20planning%20session%20modern%20office%20environment%20collaborative%20workspace%20professional%20atmosphere&width=400&height=300&seq=prod-mgr-1&orientation=landscape'
-      },
-      {
-        id: 4,
-        title: 'UX Designer',
-        category: 'Design',
-        level: 'Entry to Senior',
-        description: 'Create intuitive user experiences through research, design, and testing of digital products.',
-        averageSalary: '$70,000 - $130,000',
-        growth: '+24%',
-        popularity: 78,
-        requiredSkills: ['Design Thinking', 'Prototyping', 'User Research', 'Figma/Sketch'],
-        keyResponsibilities: [
-          'Conduct user research',
-          'Create wireframes and prototypes',
-          'Design user interfaces',
-          'Test and iterate designs'
-        ],
-        careerProgression: [
-          { level: 'Junior UX Designer', salary: '$55,000 - $75,000', experience: '0-2 years' },
-          { level: 'UX Designer', salary: '$75,000 - $110,000', experience: '2-5 years' },
-          { level: 'Senior UX Designer', salary: '$110,000 - $150,000', experience: '5+ years' },
-          { level: 'UX Design Lead', salary: '$150,000 - $200,000', experience: '7+ years' }
-        ],
-        topCompanies: ['Adobe', 'Figma', 'Airbnb', 'Spotify', 'Dropbox'],
-        education: 'Bachelor\'s in Design, HCI, or related field',
-        image: 'https://readdy.ai/api/search-image?query=UX%20designer%20creating%20user%20interface%20wireframes%20on%20computer%20with%20design%20tools%20modern%20creative%20workspace%20colorful%20sketches%20prototypes%20professional%20design%20environment&width=400&height=300&seq=ux-design-1&orientation=landscape'
-      },
-      {
-        id: 5,
-        title: 'DevOps Engineer',
-        category: 'Technology',
-        level: 'Mid to Senior',
-        description: 'Streamline development and deployment processes through automation, monitoring, and infrastructure management.',
-        averageSalary: '$85,000 - $150,000',
-        growth: '+32%',
-        popularity: 75,
-        requiredSkills: ['Cloud Platforms', 'CI/CD', 'Docker', 'Kubernetes'],
-        keyResponsibilities: [
-          'Automate deployment processes',
-          'Monitor system performance',
-          'Manage cloud infrastructure',
-          'Implement security measures'
-        ],
-        careerProgression: [
-          { level: 'DevOps Engineer', salary: '$80,000 - $120,000', experience: '2-4 years' },
-          { level: 'Senior DevOps Engineer', salary: '$120,000 - $160,000', experience: '4-7 years' },
-          { level: 'DevOps Lead', salary: '$160,000 - $200,000', experience: '7+ years' },
-          { level: 'Site Reliability Engineer', salary: '$180,000 - $250,000', experience: '8+ years' }
-        ],
-        topCompanies: ['AWS', 'Google Cloud', 'Microsoft Azure', 'Docker', 'HashiCorp'],
-        education: 'Bachelor\'s in Computer Science or related field',
-        image: 'https://readdy.ai/api/search-image?query=DevOps%20engineer%20monitoring%20server%20infrastructure%20cloud%20computing%20dashboard%20with%20multiple%20screens%20automation%20tools%20modern%20technical%20workspace%20professional%20environment&width=400&height=300&seq=devops-1&orientation=landscape'
-      },
-      {
-        id: 6,
-        title: 'Digital Marketing Manager',
-        category: 'Marketing',
-        level: 'Mid Level',
-        description: 'Develop and execute digital marketing strategies to drive brand awareness and customer acquisition.',
-        averageSalary: '$65,000 - $110,000',
-        growth: '+18%',
-        popularity: 70,
-        requiredSkills: ['SEO/SEM', 'Social Media', 'Analytics', 'Content Strategy'],
-        keyResponsibilities: [
-          'Develop marketing campaigns',
-          'Manage social media presence',
-          'Analyze campaign performance',
-          'Coordinate with creative teams'
-        ],
-        careerProgression: [
-          { level: 'Marketing Specialist', salary: '$50,000 - $70,000', experience: '0-2 years' },
-          { level: 'Digital Marketing Manager', salary: '$70,000 - $100,000', experience: '2-5 years' },
-          { level: 'Senior Marketing Manager', salary: '$100,000 - $140,000', experience: '5+ years' },
-          { level: 'Marketing Director', salary: '$140,000 - $200,000', experience: '7+ years' }
-        ],
-        topCompanies: ['HubSpot', 'Salesforce', 'Adobe', 'Google', 'Facebook'],
-        education: 'Bachelor\'s in Marketing, Communications, or related field',
-        image: 'https://readdy.ai/api/search-image?query=Digital%20marketing%20manager%20analyzing%20campaign%20performance%20on%20computer%20with%20social%20media%20metrics%20charts%20graphs%20modern%20office%20environment%20professional%20workspace&width=400&height=300&seq=digital-mkt-1&orientation=landscape'
-      }
-    ];
-    setCareerPaths(mockCareerPaths);
-    setFilteredPaths(mockCareerPaths);
+  const loadCareerPaths = async () => {
+    try {
+      const data = await fetchCareerPaths();
+      // Expect array of paths with fields used below
+      setCareerPaths(data || []);
+      setFilteredPaths(data || []);
+    } catch (e) {
+      // Fallback to empty list while preserving UI
+      setCareerPaths([]);
+      setFilteredPaths([]);
+    }
   };
 
   const filterAndSortPaths = () => {

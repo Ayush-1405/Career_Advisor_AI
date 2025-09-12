@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { registerUser } from '../../lib/api';
 import Link from 'next/link';
 
 export default function RegisterForm({ onRegister }) {
@@ -32,24 +33,17 @@ export default function RegisterForm({ onRegister }) {
       return;
     }
 
-    // Simulate registration process
-    setTimeout(() => {
-      if (formData.name && formData.email && formData.password) {
-        // Mock successful registration
-        const userData = {
-          id: Date.now(),
-          name: formData.name,
-          email: formData.email,
-          joinDate: new Date().toISOString()
-        };
-        
-        localStorage.setItem('user', JSON.stringify(userData));
-        onRegister(userData);
-      } else {
-        setError('Please fill in all fields');
-      }
+    try {
+      const payload = { name: formData.name, email: formData.email, password: formData.password };
+      const data = await registerUser(payload);
+      // Backend returns a simple OK string; auto-login by calling login API next if desired
+      // For now, redirect user to login page via onRegister(null)
+      onRegister && onRegister(null);
+    } catch (err) {
+      setError(err.message || 'Registration failed');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { loginUser } from '../../lib/api';
 import Link from 'next/link';
 
 export default function LoginForm({ onLogin }) {
@@ -23,24 +24,20 @@ export default function LoginForm({ onLogin }) {
     setIsLoading(true);
     setError('');
 
-    // Simulate login process
-    setTimeout(() => {
-      if (formData.email && formData.password) {
-        // Mock successful login
-        const userData = {
-          id: 1,
-          name: 'John Doe',
-          email: formData.email,
-          joinDate: new Date().toISOString()
-        };
-        
-        localStorage.setItem('user', JSON.stringify(userData));
-        onLogin(userData);
-      } else {
-        setError('Please fill in all fields');
+    try {
+      const data = await loginUser({ email: formData.email, password: formData.password });
+      // Backend returns { token, role, email, name }
+      if (data?.token) {
+        localStorage.setItem('auth', JSON.stringify({ token: data.token }));
       }
+      const user = { name: data?.name, email: data?.email, role: data?.role };
+      localStorage.setItem('user', JSON.stringify(user));
+      onLogin(user);
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

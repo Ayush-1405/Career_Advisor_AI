@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { chatWithAssistant } from '../../lib/api';
 
 export default function AIAssistantPage() {
   const router = useRouter();
@@ -60,49 +61,30 @@ export default function AIAssistantPage() {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage);
+    try {
+      const resp = await chatWithAssistant(inputMessage);
+      const replyText = resp.reply || resp.message || '...';
       const aiMessage = {
         id: messages.length + 2,
         type: 'ai',
-        content: aiResponse,
+        content: replyText,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      const aiMessage = {
+        id: messages.length + 2,
+        type: 'ai',
+        content: 'Sorry, I could not process that right now.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
-  const generateAIResponse = (userInput) => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('resume') || input.includes('cv')) {
-      return "I can help you improve your resume! Here are some tips:\n\n• Use action verbs and quantify achievements\n• Tailor your resume to each job application\n• Keep it concise (1-2 pages)\n• Include relevant keywords from job descriptions\n• Highlight your most relevant experience first\n\nWould you like me to analyze your specific resume or help with a particular section?";
-    }
-    
-    if (input.includes('interview') || input.includes('job interview')) {
-      return "Great question about interviews! Here's how to prepare:\n\n• Research the company and role thoroughly\n• Practice common interview questions\n• Prepare specific examples using the STAR method\n• Dress appropriately for the company culture\n• Prepare thoughtful questions to ask the interviewer\n• Follow up with a thank-you email\n\nWould you like help preparing for a specific type of interview or role?";
-    }
-    
-    if (input.includes('skills') || input.includes('learning')) {
-      return "Skill development is crucial for career growth! Here's my advice:\n\n• Identify in-demand skills in your field\n• Set specific, measurable learning goals\n• Use online platforms like Coursera, Udemy, or LinkedIn Learning\n• Practice through real projects or freelance work\n• Get certified to validate your skills\n• Join communities and attend meetups\n\nWhat specific skills are you looking to develop?";
-    }
-    
-    if (input.includes('career change') || input.includes('switch career')) {
-      return "Career transitions can be exciting! Here's how to approach it:\n\n• Assess your transferable skills\n• Research your target industry thoroughly\n• Network with professionals in your desired field\n• Consider additional education or certifications\n• Start with informational interviews\n• Build a portfolio or gain relevant experience\n• Update your LinkedIn and resume for the new field\n\nWhat career field are you considering moving into?";
-    }
-    
-    if (input.includes('salary') || input.includes('negotiate')) {
-      return "Salary negotiation is an important skill! Here are key strategies:\n\n• Research market rates for your role and location\n• Document your achievements and value add\n• Consider the total compensation package\n• Practice your negotiation conversation\n• Be prepared to justify your request\n• Know when to walk away\n• Time your negotiation appropriately\n\nWould you like help preparing for a specific salary negotiation?";
-    }
-    
-    if (input.includes('linkedin') || input.includes('networking')) {
-      return "LinkedIn and networking are powerful career tools! Here's how to optimize:\n\n• Complete your LinkedIn profile with keywords\n• Share valuable content regularly\n• Engage with others' posts meaningfully\n• Connect with industry professionals\n• Join relevant LinkedIn groups\n• Attend virtual and in-person networking events\n• Follow up with new connections\n\nWould you like help with your LinkedIn profile or networking strategy?";
-    }
-    
-    return "That's a great question! I'm here to help with all aspects of your career journey. I can assist with:\n\n• Resume and cover letter optimization\n• Interview preparation and practice\n• Skill development planning\n• Career transition strategies\n• Salary negotiation tips\n• LinkedIn profile enhancement\n• Job search strategies\n• Professional networking\n\nCould you provide more details about your specific situation so I can give you more targeted advice?";
-  };
+  // Removed local mock response generator in favor of backend chat API
 
   const quickQuestions = [
     "How can I improve my resume?",

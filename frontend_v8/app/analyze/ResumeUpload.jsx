@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { submitResume } from '../../lib/api';
 
 export default function ResumeUpload({ onAnalysisStart, onAnalysisComplete }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -36,88 +37,33 @@ export default function ResumeUpload({ onAnalysisStart, onAnalysisComplete }) {
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!selectedFile) return;
-    
     onAnalysisStart();
-    
-    // Simulate AI analysis
-    setTimeout(() => {
-      const mockAnalysisData = {
-        skills: {
-          technical: [
-            { name: 'JavaScript', level: 85, category: 'Programming' },
-            { name: 'React', level: 78, category: 'Frontend' },
-            { name: 'Node.js', level: 72, category: 'Backend' },
-            { name: 'Python', level: 68, category: 'Programming' },
-            { name: 'SQL', level: 75, category: 'Database' },
-            { name: 'AWS', level: 65, category: 'Cloud' }
-          ],
-          soft: [
-            { name: 'Leadership', level: 80 },
-            { name: 'Communication', level: 85 },
-            { name: 'Problem Solving', level: 90 },
-            { name: 'Teamwork', level: 78 },
-            { name: 'Project Management', level: 70 }
-          ]
-        },
-        experience: {
-          totalYears: 5,
-          roles: [
-            { title: 'Senior Software Engineer', company: 'TechCorp', duration: '2 years', current: true },
-            { title: 'Full Stack Developer', company: 'StartupXYZ', duration: '2 years', current: false },
-            { title: 'Junior Developer', company: 'WebSolutions', duration: '1 year', current: false }
-          ],
-          industries: ['Technology', 'E-commerce', 'Finance']
-        },
-        education: [
-          { degree: 'Bachelor of Computer Science', institution: 'University of Technology', year: '2019' },
-          { degree: 'AWS Certified Developer', institution: 'Amazon Web Services', year: '2023' }
-        ],
-        careerRecommendations: [
-          {
-            title: 'Senior Full Stack Engineer',
-            match: 92,
-            salary: '$95,000 - $125,000',
-            growth: '+15%',
-            description: 'Lead development of web applications using modern frameworks'
-          },
-          {
-            title: 'Technical Lead',
-            match: 85,
-            salary: '$110,000 - $140,000',
-            growth: '+20%',
-            description: 'Guide technical decisions and mentor junior developers'
-          },
-          {
-            title: 'Product Manager',
-            match: 78,
-            salary: '$100,000 - $130,000',
-            growth: '+18%',
-            description: 'Bridge technology and business requirements'
-          }
-        ],
-        skillGaps: [
-          { skill: 'Docker', importance: 'High', courses: ['Docker Fundamentals', 'Container Orchestration'] },
-          { skill: 'Machine Learning', importance: 'Medium', courses: ['ML Basics', 'Python for AI'] },
-          { skill: 'System Design', importance: 'High', courses: ['Scalable Systems', 'Architecture Patterns'] }
-        ],
-        strengths: [
-          'Strong technical foundation in modern web technologies',
-          'Excellent problem-solving abilities',
-          'Good leadership and communication skills',
-          'Diverse industry experience'
-        ],
-        improvements: [
-          'Expand cloud computing knowledge',
-          'Develop more advanced system design skills',
-          'Gain experience with machine learning',
-          'Strengthen project management capabilities'
-        ]
-      };
-      
-      onAnalysisComplete(mockAnalysisData);
-    }, 3000);
+    try {
+      const payload = { education: '', skills: selectedFile.name, experience: '' };
+      const analysis = await submitResume(payload);
+      onAnalysisComplete({
+        strengths: (analysis?.strengths || '').split(',').filter(Boolean),
+        improvements: (analysis?.improvements || '').split(',').filter(Boolean),
+        skills: { technical: [], soft: [] },
+        experience: { totalYears: 0, roles: [], industries: [] },
+        education: [],
+        careerRecommendations: []
+      });
+    } catch (e) {
+      // On error, provide graceful fallback structure for UI
+      onAnalysisComplete({
+        skills: { technical: [], soft: [] },
+        experience: { totalYears: 0, roles: [], industries: [] },
+        education: [],
+        careerRecommendations: [],
+        skillGaps: [],
+        strengths: [],
+        improvements: [],
+        error: e.message || 'Failed to analyze resume'
+      });
+    }
   };
 
   return (
