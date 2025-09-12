@@ -124,4 +124,53 @@ export async function fetchAdminAnalyses() {
 	return apiRequest('/api/admin/analyses', { method: 'GET' });
 }
 
+// Admin settings/analytics used by pages
+export async function fetchAdminSettings() {
+	return apiRequest('/api/admin/settings', { method: 'GET' });
+}
+
+export async function updateAdminSettings(payload) {
+	return apiRequest('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export async function fetchAdminAnalytics() {
+	return apiRequest('/api/admin/analytics', { method: 'GET' });
+}
+
+// Reports
+export async function generateReport(payload) {
+	return apiRequest('/api/report/generate', {
+		method: 'POST',
+		body: JSON.stringify(payload)
+	});
+}
+
+async function apiRequestBlob(path, options = {}) {
+	const url = buildUrl(path);
+	const headers = new Headers(options.headers || {});
+	if (!headers.has('Content-Type') && options.body && !(options.body instanceof FormData)) {
+		headers.set('Content-Type', 'application/json');
+	}
+	try {
+		const stored = typeof window !== 'undefined' ? localStorage.getItem('auth') : null;
+		if (stored) {
+			const { token } = JSON.parse(stored);
+			if (token) headers.set('Authorization', `Bearer ${token}`);
+		}
+	} catch {}
+	const response = await fetch(url, { ...options, headers });
+	if (!response.ok) {
+		throw new Error(`Request failed (${response.status})`);
+	}
+	return response.blob();
+}
+
+export async function downloadReportPdf(payload) {
+	return apiRequestBlob('/api/report/pdf', {
+		method: 'POST',
+		body: JSON.stringify(payload)
+	});
+}
+
+
 

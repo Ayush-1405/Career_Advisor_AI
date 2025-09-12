@@ -45,3 +45,4 @@ CREATE TABLE IF NOT EXISTS resume_analysis (
 INSERT INTO users(name, email, password, role)
 VALUES ('Admin', 'admin@example.com', '$2a$10$Q9x4QwK9q1oJ9rZrJgW8Oe6qv7cZp9v0lYQ2n1tTqYQxZp7o8YwR6', 'ADMIN');
 
+

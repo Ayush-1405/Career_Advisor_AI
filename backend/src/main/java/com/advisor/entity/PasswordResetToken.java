@@ -26,3 +26,4 @@ public class PasswordResetToken {
   private boolean used = false;
 }
 
+

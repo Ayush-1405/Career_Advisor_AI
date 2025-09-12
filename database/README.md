@@ -28,3 +28,4 @@ If you already ran the app and tables exist, this script is idempotent and will 
 - Register → Login → POST /api/resumes via Analyze page → Generate report from real DB data.
 
 
+

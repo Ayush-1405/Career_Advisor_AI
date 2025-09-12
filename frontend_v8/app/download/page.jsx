@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';
 import {} from 'lucide-react';
+import { generateReport, downloadReportPdf } from '../../lib/api';
 function DownloadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,23 +18,14 @@ function DownloadContent() {
   useEffect(() => {
     // Check if user is logged in
     const savedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (savedUser && token) {
+    const auth = localStorage.getItem('auth');
+    if (savedUser && auth) {
       const parsed = JSON.parse(savedUser);
       setUser(parsed);
       // Fetch report from backend
       (async () => {
         try {
-          const res = await fetch('http://localhost:8080/api/report/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ role: role || 'Career Report', name: parsed?.name })
-          });
-          if (!res.ok) throw new Error('Failed to fetch report');
-          const data = await res.json();
+          const data = await generateReport({ role: role || 'Career Report', name: parsed?.name });
           setReportData(data);
         } catch (e) {
           console.error(e);
@@ -58,21 +50,11 @@ function DownloadContent() {
   const generatePDF = async () => {
     try {
       setIsGenerating(true);
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8080/api/report/pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ role: role || 'Career Report', name: user?.name })
-      });
-      if (!res.ok) throw new Error('Failed to generate report');
-      const blob = await res.blob();
+      const blob = await downloadReportPdf({ role: role || 'Career Report', name: user?.name });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${(reportData?.userInfo?.name || user?.name || 'User')}_Career_Report.txt`;
+      a.download = `${(reportData?.userInfo?.name || user?.name || 'User')}_Career_Report.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
