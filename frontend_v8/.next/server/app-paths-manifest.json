@@ -1,7 +1,9 @@
 {
-  "/auth/register/page": "app/auth/register/page.js",
-  "/ai-assistant/page": "app/ai-assistant/page.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/help-center/page": "app/help-center/page.js",
-  "/auth/forgot-password/page": "app/auth/forgot-password/page.js"
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/admin/analytics/page": "app/admin/analytics/page.js",
+  "/admin/resumes/page": "app/admin/resumes/page.js",
+  "/admin/career-paths/page": "app/admin/career-paths/page.js",
+  "/page": "app/page.js"
 }

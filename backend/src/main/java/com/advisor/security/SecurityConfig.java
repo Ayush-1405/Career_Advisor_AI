@@ -56,6 +56,7 @@ public CorsConfigurationSource corsConfigurationSource() {
  config.setAllowCredentials(true);
  config.addAllowedOriginPattern("http://localhost:3000");
  config.addAllowedOriginPattern("http://127.0.0.1:3000");
+ config.addAllowedOriginPattern("http://0.0.0.0:3000");
  config.addAllowedHeader("*");
  config.addAllowedMethod("*");
  source.registerCorsConfiguration("/**", config);
