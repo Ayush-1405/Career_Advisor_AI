@@ -220,6 +220,17 @@ export default function DashboardPage() {
               <p className="text-gray-600">Explore career paths tailored to your skills</p>
             </Link>
 
+            <Link href="/download" className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
+                  <i className="ri-download-2-line text-white text-2xl"></i>
+                </div>
+                <i className="ri-arrow-right-line text-gray-400"></i>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Download Report</h3>
+              <p className="text-gray-600">Generate and download your career report</p>
+            </Link>
+
             <Link href="/ai-assistant" className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg flex items-center justify-center">

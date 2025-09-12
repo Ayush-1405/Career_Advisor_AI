@@ -6,6 +6,9 @@ import Link from 'next/link';
 
 export default function AnalysisResults({ data }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const topRecommendedRole = (data?.careerRecommendations && data.careerRecommendations.length > 0)
+    ? data.careerRecommendations[0].title
+    : 'Career Report';
 
   const getSkillColor = (level) => {
     if (level >= 80) return 'bg-green-500';
@@ -277,6 +280,12 @@ export default function AnalysisResults({ data }) {
         </Link>
         <Link href="/dashboard" className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors cursor-pointer text-center whitespace-nowrap">
           Go to Dashboard
+        </Link>
+        <Link
+          href={`/download?role=${encodeURIComponent(topRecommendedRole)}`}
+          className="bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors cursor-pointer text-center whitespace-nowrap"
+        >
+          Download Report
         </Link>
       </div>
     </div>
