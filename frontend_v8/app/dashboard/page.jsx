@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchDashboardStats } from '../../lib/api';
+import { fetchDashboardStats, trackUserActivity } from '../../lib/api';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -13,7 +13,10 @@ export default function DashboardPage() {
     resumeUploaded: false,
     suggestionsAvailable: 0,
     skillsAssessed: false,
-    completionRate: 0
+    completionRate: 0,
+    totalActivities: 0,
+    recentActivitiesCount: 0,
+    recentActivities: []
   });
 
   useEffect(() => {
@@ -32,9 +35,16 @@ export default function DashboardPage() {
           resumeUploaded: !!data.resumeUploaded,
           suggestionsAvailable: Number(data.suggestionsAvailable || 0),
           skillsAssessed: !!data.skillsAssessed,
-          completionRate: Number(data.completionRate || 0)
+          completionRate: Number(data.completionRate || 0),
+          totalActivities: Number(data.totalActivities || 0),
+          recentActivitiesCount: Number(data.recentActivitiesCount || 0),
+          recentActivities: data.recentActivities || []
         });
+        
+        // Track dashboard visit
+        await trackUserActivity('dashboard_visit');
       } catch (e) {
+        console.error('Failed to load dashboard stats:', e);
         // Keep defaults
       } finally {
         setIsLoading(false);
@@ -247,35 +257,36 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h3>
             <div className="space-y-4">
-              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <i className="ri-check-line text-green-600"></i>
+              {stats.recentActivities.length > 0 ? (
+                stats.recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      activity.color === 'text-green-600' ? 'bg-green-100' :
+                      activity.color === 'text-blue-600' ? 'bg-blue-100' :
+                      activity.color === 'text-purple-600' ? 'bg-purple-100' :
+                      activity.color === 'text-orange-600' ? 'bg-orange-100' :
+                      activity.color === 'text-yellow-600' ? 'bg-yellow-100' :
+                      'bg-gray-100'
+                    }`}>
+                      <i className={`${activity.icon} ${
+                        activity.color || 'text-gray-600'
+                      }`}></i>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{activity.message}</div>
+                      <div className="text-sm text-gray-500">{activity.timestamp}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="ri-time-line text-gray-400 text-2xl"></i>
+                  </div>
+                  <div className="text-gray-500">No recent activity</div>
+                  <div className="text-sm text-gray-400 mt-1">Start using the platform to see your activity here</div>
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">Resume uploaded successfully</div>
-                  <div className="text-sm text-gray-500">2 hours ago</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <i className="ri-brain-line text-blue-600"></i>
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">Skills assessment completed</div>
-                  <div className="text-sm text-gray-500">1 day ago</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <i className="ri-lightbulb-line text-purple-600"></i>
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">New career suggestions available</div>
-                  <div className="text-sm text-gray-500">2 days ago</div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

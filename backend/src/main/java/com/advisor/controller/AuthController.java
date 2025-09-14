@@ -5,6 +5,7 @@ import com.advisor.entity.*;
 import com.advisor.repository.*;
 import com.advisor.security.*;
 import com.advisor.service.PasswordResetService;
+import com.advisor.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -24,6 +25,7 @@ public class AuthController {
   private final AuthenticationManager authenticationManager;
   private final JwtUtil jwtUtil;
   private final PasswordResetService passwordResetService;
+  private final DashboardService dashboardService;
 
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody @jakarta.validation.Valid RegisterRequest req) {
@@ -36,6 +38,11 @@ public class AuthController {
     u.setPassword(passwordEncoder.encode(req.getPassword()));
     u.setRole(Role.USER);
     userRepository.save(u);
+    
+    // Track user registration activity
+    dashboardService.trackUserActivity(u.getId(), "user_registration", 
+        "{\"email\":\"" + req.getEmail() + "\",\"name\":\"" + req.getName() + "\"}");
+    
     return ResponseEntity.ok("Registered");
   }
 
@@ -49,6 +56,11 @@ public class AuthController {
         u.getEmail(),
         Map.of("role", "ROLE_" + u.getRole().name(), "name", u.getName())
     );
+    
+    // Track login activity
+    dashboardService.trackUserActivity(u.getId(), "login", 
+        "{\"email\":\"" + req.getEmail() + "\",\"timestamp\":\"" + java.time.LocalDateTime.now() + "\"}");
+    
     return ResponseEntity.ok(new AuthResponse(token, u.getRole().name(), u.getEmail(), u.getName()));
   }
 

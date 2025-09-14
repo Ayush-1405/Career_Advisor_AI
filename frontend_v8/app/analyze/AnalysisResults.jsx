@@ -6,8 +6,21 @@ import Link from 'next/link';
 
 export default function AnalysisResults({ data }) {
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Add safety checks for data
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <div className="text-gray-500 text-lg">No analysis data available</div>
+          <div className="text-gray-400 text-sm mt-2">Please upload a resume to get started</div>
+        </div>
+      </div>
+    );
+  }
+
   const topRecommendedRole = (data?.careerRecommendations && data.careerRecommendations.length > 0)
-    ? data.careerRecommendations[0].title
+    ? data.careerRecommendations[0]?.title || 'Career Report'
     : 'Career Report';
 
   const getSkillColor = (level) => {
@@ -21,19 +34,21 @@ export default function AnalysisResults({ data }) {
       {/* Key Metrics */}
       <div className="grid md:grid-cols-4 gap-6">
         <div className="bg-blue-50 p-6 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-600">{data.experience.totalYears}</div>
+          <div className="text-2xl font-bold text-blue-600">{data?.experience?.totalYears || 0}</div>
           <div className="text-sm text-gray-600">Years Experience</div>
         </div>
         <div className="bg-purple-50 p-6 rounded-lg text-center">
-          <div className="text-2xl font-bold text-purple-600">{data.skills.technical.length}</div>
+          <div className="text-2xl font-bold text-purple-600">{data?.skills?.technical?.length || 0}</div>
           <div className="text-sm text-gray-600">Technical Skills</div>
         </div>
         <div className="bg-green-50 p-6 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-600">{data.careerRecommendations[0].match}%</div>
+          <div className="text-2xl font-bold text-green-600">
+            {data?.careerRecommendations?.[0]?.match || 0}%
+          </div>
           <div className="text-sm text-gray-600">Best Match</div>
         </div>
         <div className="bg-orange-50 p-6 rounded-lg text-center">
-          <div className="text-2xl font-bold text-orange-600">{data.experience.industries.length}</div>
+          <div className="text-2xl font-bold text-orange-600">{data?.experience?.industries?.length || 0}</div>
           <div className="text-sm text-gray-600">Industries</div>
         </div>
       </div>
@@ -46,7 +61,7 @@ export default function AnalysisResults({ data }) {
             Key Strengths
           </h3>
           <ul className="space-y-2">
-            {data.strengths.map((strength, index) => (
+            {(data?.strengths || []).map((strength, index) => (
               <li key={index} className="flex items-start">
                 <i className="ri-check-line text-green-600 mt-1 mr-2"></i>
                 <span className="text-gray-700">{strength}</span>
@@ -61,7 +76,7 @@ export default function AnalysisResults({ data }) {
             Areas for Improvement
           </h3>
           <ul className="space-y-2">
-            {data.improvements.map((improvement, index) => (
+            {(data?.improvements || []).map((improvement, index) => (
               <li key={index} className="flex items-start">
                 <i className="ri-arrow-right-line text-orange-600 mt-1 mr-2"></i>
                 <span className="text-gray-700">{improvement}</span>
@@ -75,7 +90,7 @@ export default function AnalysisResults({ data }) {
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Career Recommendations</h3>
         <div className="grid gap-4">
-          {data.careerRecommendations.slice(0, 3).map((rec, index) => (
+          {(data?.careerRecommendations || []).slice(0, 3).map((rec, index) => (
             <div key={index} className="bg-white border rounded-lg p-6">
               <div className="flex items-start justify-between mb-2">
                 <div>
@@ -104,7 +119,7 @@ export default function AnalysisResults({ data }) {
         <div className="bg-white p-6 rounded-lg border">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Technical Skills</h3>
           <div className="space-y-4">
-            {data.skills.technical.map((skill, index) => (
+            {(data?.skills?.technical || []).map((skill, index) => (
               <div key={index}>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium text-gray-700">{skill.name}</span>
@@ -125,7 +140,7 @@ export default function AnalysisResults({ data }) {
         <div className="bg-white p-6 rounded-lg border">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Soft Skills</h3>
           <div className="space-y-4">
-            {data.skills.soft.map((skill, index) => (
+            {(data?.skills?.soft || []).map((skill, index) => (
               <div key={index}>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium text-gray-700">{skill.name}</span>
@@ -149,7 +164,7 @@ export default function AnalysisResults({ data }) {
           Skill Gaps to Address
         </h3>
         <div className="grid md:grid-cols-3 gap-4">
-          {data.skillGaps.map((gap, index) => (
+          {(data?.skillGaps || []).map((gap, index) => (
             <div key={index} className="bg-white p-4 rounded-lg border">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-gray-900">{gap.skill}</h4>
@@ -174,7 +189,7 @@ export default function AnalysisResults({ data }) {
 
   const renderCareerPaths = () => (
     <div className="space-y-6">
-      {data.careerRecommendations.map((rec, index) => (
+      {(data?.careerRecommendations || []).map((rec, index) => (
         <div key={index} className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between mb-4">
             <div>

@@ -105,6 +105,19 @@ export async function fetchDashboardStats() {
 	return apiRequest('/api/users/me/stats', { method: 'GET' });
 }
 
+// Track user activity
+export async function trackUserActivity(activityType, activityData = null) {
+	return apiRequest('/api/users/me/activity', {
+		method: 'POST',
+		body: JSON.stringify({ activityType, activityData })
+	});
+}
+
+// Admin dashboard stats
+export async function fetchAdminDashboardStats() {
+	return apiRequest('/api/admin/dashboard/stats', { method: 'GET' });
+}
+
 // AI assistant
 export async function chatWithAssistant(message) {
 	return apiRequest('/api/assistant/chat', {

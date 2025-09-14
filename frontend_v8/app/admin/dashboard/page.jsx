@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchAdminDashboardStats } from '../../../lib/api';
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
@@ -9,14 +10,17 @@ export default function AdminDashboardPage() {
   const [admin, setAdmin] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalUsers: 1247,
-    verifiedUsers: 892,
-    resumesParsed: 1156,
-    activeUsers: 234,
-    newUsersToday: 23,
-    successfulLogins: 1891
+    totalUsers: 0,
+    verifiedUsers: 0,
+    resumesParsed: 0,
+    activeUsers: 0,
+    newUsersToday: 0,
+    successfulLogins: 0,
+    verificationRate: 0,
+    completionRate: 0,
+    systemUptime: 98.5,
+    recentActivities: []
   });
-  const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
     // Check if admin is logged in
@@ -25,61 +29,37 @@ export default function AdminDashboardPage() {
       const parsedAuth = JSON.parse(adminAuth);
       if (parsedAuth.user.role === 'admin') {
         setAdmin(parsedAuth.user);
-        loadRecentActivity();
+        loadDashboardData();
       } else {
         router.push('/admin/login');
       }
     } else {
       router.push('/admin/login');
     }
-    setIsLoading(false);
   }, [router]);
 
-  const loadRecentActivity = () => {
-    const mockActivity = [
-      {
-        id: 1,
-        type: 'user_registration',
-        message: 'New user registration: john.doe@email.com',
-        timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-        icon: 'ri-user-add-line',
-        color: 'text-green-600'
-      },
-      {
-        id: 2,
-        type: 'resume_upload',
-        message: 'Resume uploaded by sarah.wilson@email.com',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        icon: 'ri-file-upload-line',
-        color: 'text-blue-600'
-      },
-      {
-        id: 3,
-        type: 'system_alert',
-        message: 'High server load detected - Auto-scaled instances',
-        timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-        icon: 'ri-alert-line',
-        color: 'text-yellow-600'
-      },
-      {
-        id: 4,
-        type: 'user_verification',
-        message: 'Email verified: mike.johnson@email.com',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        icon: 'ri-verified-badge-line',
-        color: 'text-green-600'
-      },
-      {
-        id: 5,
-        type: 'skills_assessment',
-        message: 'Skills assessment completed by lisa.brown@email.com',
-        timestamp: new Date(Date.now() - 1000 * 60 * 90), // 1.5 hours ago
-        icon: 'ri-brain-line',
-        color: 'text-purple-600'
-      }
-    ];
-    setRecentActivity(mockActivity);
+  const loadDashboardData = async () => {
+    try {
+      const data = await fetchAdminDashboardStats();
+      setStats({
+        totalUsers: data.totalUsers || 0,
+        verifiedUsers: data.verifiedUsers || 0,
+        resumesParsed: data.resumesParsed || 0,
+        activeUsers: data.activeUsers || 0,
+        newUsersToday: data.newUsersToday || 0,
+        successfulLogins: data.successfulLogins || 0,
+        verificationRate: data.verificationRate || 0,
+        completionRate: data.completionRate || 0,
+        systemUptime: data.systemUptime || 98.5,
+        recentActivities: data.recentActivities || []
+      });
+    } catch (error) {
+      console.error('Failed to load admin dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
@@ -208,7 +188,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
               <div className="text-sm text-gray-600">
-                {((stats.verifiedUsers / stats.totalUsers) * 100).toFixed(1)}% verification rate
+                {stats.verificationRate.toFixed(1)}% verification rate
               </div>
             </div>
 
@@ -223,7 +203,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
               <div className="text-sm text-gray-600">
-                {((stats.resumesParsed / stats.totalUsers) * 100).toFixed(1)}% completion rate
+                {stats.completionRate.toFixed(1)}% completion rate
               </div>
             </div>
 
@@ -263,7 +243,7 @@ export default function AdminDashboardPage() {
                   <i className="ri-bar-chart-line text-red-600 text-xl"></i>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-gray-900">98.5%</div>
+                  <div className="text-2xl font-bold text-gray-900">{stats.systemUptime.toFixed(1)}%</div>
                   <div className="text-sm text-gray-500">System Uptime</div>
                 </div>
               </div>
@@ -302,17 +282,27 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Recent Activity</h3>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                    <i className={`${activity.icon} ${activity.color} text-lg`}></i>
+              {stats.recentActivities.length > 0 ? (
+                stats.recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                      <i className={`${activity.icon} ${activity.color} text-lg`}></i>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{activity.message}</div>
+                      <div className="text-sm text-gray-500">{activity.timestamp}</div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{activity.message}</div>
-                    <div className="text-sm text-gray-500">{formatTimestamp(activity.timestamp)}</div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="ri-activity-line text-gray-400 text-2xl"></i>
                   </div>
+                  <div className="text-gray-500">No recent activity</div>
+                  <div className="text-sm text-gray-400 mt-1">Activity will appear here as users interact with the platform</div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
