@@ -52,9 +52,14 @@ public class AuthController {
         new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
     );
     User u = userRepository.findByEmail(req.getEmail()).orElseThrow();
+    
+    // Update last login time
+    u.setLastLogin(java.time.LocalDateTime.now());
+    userRepository.save(u);
+    
     String token = jwtUtil.generateToken(
         u.getEmail(),
-        Map.of("role", "ROLE_" + u.getRole().name(), "name", u.getName())
+        Map.of("role", "ROLE_" + u.getRole().name(), "name", u.getName(), "userId", u.getId().toString())
     );
     
     // Track login activity

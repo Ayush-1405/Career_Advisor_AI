@@ -25,30 +25,53 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError('');
 
-    // Simulate admin login with role verification
-    setTimeout(() => {
-      // Check for admin credentials
-      if (formData.email === 'admin@careerpathai.com' && formData.password === 'admin123') {
-        // Mock JWT token generation
-        const adminToken = {
-          user: {
-            id: 999,
-            name: 'Admin User',
-            email: formData.email,
-            role: 'admin',
-            permissions: ['read', 'write', 'delete', 'manage_users']
-          },
-          token: 'mock_jwt_token_admin_' + Date.now(),
-          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000) // 8 hours
-        };
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      if (response.ok) {
+        const authData = await response.json();
         
-        localStorage.setItem('adminAuth', JSON.stringify(adminToken));
-        router.push('/admin/dashboard');
+        // Check if user has admin role
+        if (authData.role === 'ADMIN') {
+          // Store auth token for API calls
+          localStorage.setItem('authToken', authData.token);
+          
+          // Store admin session data
+          const adminSession = {
+            user: {
+              id: authData.userId || 'unknown',
+              name: authData.name,
+              email: authData.email,
+              role: authData.role,
+              permissions: ['read', 'write', 'delete', 'manage_users']
+            },
+            token: authData.token,
+            expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000) // 8 hours
+          };
+          
+          localStorage.setItem('adminAuth', JSON.stringify(adminSession));
+          router.push('/admin/dashboard');
+        } else {
+          setError('Access denied. Admin privileges required.');
+        }
       } else {
-        setError('Invalid admin credentials or insufficient permissions');
+        const errorData = await response.json();
+        setError(errorData.message || 'Invalid credentials');
       }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

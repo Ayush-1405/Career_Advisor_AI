@@ -94,3 +94,5 @@ CREATE INDEX idx_system_analytics_name ON system_analytics(metric_name);
 CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX idx_user_sessions_active ON user_sessions(is_active);
 CREATE INDEX idx_user_sessions_token ON user_sessions(session_token);
+
+

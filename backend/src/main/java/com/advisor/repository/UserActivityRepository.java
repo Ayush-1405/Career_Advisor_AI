@@ -24,4 +24,6 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
     
     @Query("SELECT ua.activityType, COUNT(ua) FROM UserActivity ua WHERE ua.createdAt >= :since GROUP BY ua.activityType")
     List<Object[]> getActivityCountsByType(@Param("since") LocalDateTime since);
+
+    List<UserActivity> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime oneDayAgo);
 }

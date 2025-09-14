@@ -641,11 +641,11 @@ video {
 .max-h-\[90vh\]{
   max-height: 90vh;
 }
-.min-h-screen{
-  min-height: 100vh;
-}
 .min-h-64{
   min-height: 16rem;
+}
+.min-h-screen{
+  min-height: 100vh;
 }
 .w-10{
   width: 2.5rem;
