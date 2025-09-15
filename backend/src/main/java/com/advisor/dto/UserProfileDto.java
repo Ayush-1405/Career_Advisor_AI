@@ -26,3 +26,4 @@ public class UserProfileDto {
     private LocalDateTime updatedAt;
     private String role;
 }
+

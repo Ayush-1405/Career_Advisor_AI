@@ -49,3 +49,4 @@ class ResumeAnalysisReport {
     private String weaknesses;
     private LocalDateTime analyzedAt;
 }
+

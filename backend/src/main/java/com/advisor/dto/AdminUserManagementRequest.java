@@ -13,3 +13,4 @@ public class AdminUserManagementRequest {
     private Boolean isActive;
     private Boolean emailVerified;
 }
+

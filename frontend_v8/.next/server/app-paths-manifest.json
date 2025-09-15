@@ -1,7 +1,4 @@
 {
-  "/admin/resumes/page": "app/admin/resumes/page.js",
-  "/admin/career-paths/page": "app/admin/career-paths/page.js",
-  "/admin/users/page": "app/admin/users/page.js",
-  "/admin/analytics/page": "app/admin/analytics/page.js",
-  "/admin/settings/page": "app/admin/settings/page.js"
+  "/page": "app/page.js",
+  "/auth/login/page": "app/auth/login/page.js"
 }

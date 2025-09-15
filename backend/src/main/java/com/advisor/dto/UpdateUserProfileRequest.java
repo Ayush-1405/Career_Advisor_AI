@@ -33,3 +33,4 @@ public class UpdateUserProfileRequest {
     @Size(max = 255, message = "Website URL must not exceed 255 characters")
     private String websiteUrl;
 }
+
