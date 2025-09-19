@@ -50,3 +50,4 @@ class ResumeAnalysisReport {
     private LocalDateTime analyzedAt;
 }
 
+
