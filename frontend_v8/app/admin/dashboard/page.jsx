@@ -23,20 +23,22 @@ export default function AdminDashboardPage() {
   });
 
   useEffect(() => {
-    // Check if admin is logged in
-    const adminAuth = localStorage.getItem('adminAuth');
-    if (adminAuth) {
-      const parsedAuth = JSON.parse(adminAuth);
-      if (parsedAuth.user.role === 'admin') {
-        setAdmin(parsedAuth.user);
-        loadDashboardData();
-      } else {
-        router.push('/admin/login');
-      }
-    } else {
-      router.push('/admin/login');
-    }
-  }, [router]);
+  const adminAuth = localStorage.getItem('admin');
+  if (!adminAuth) {
+    router.push('/admin/login');
+    return;
+  }
+
+  const parsedAuth = JSON.parse(adminAuth);
+  if (parsedAuth.user.role !== 'admin') {
+    router.push('/admin/login');
+    return;
+  }
+
+  setAdmin(parsedAuth.user);
+  loadDashboardData();
+}, [router]);
+
 
   const loadDashboardData = async () => {
     try {
@@ -61,11 +63,11 @@ export default function AdminDashboardPage() {
   };
 
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    setAdmin(null);
-    router.push('/admin/login');
-  };
+  function handleLogout() {
+  localStorage.removeItem('auth');   // Remove token
+  localStorage.removeItem('admin');   // Optional: remove admin info
+  router.push('/auth/login');        // Redirect to login page
+}
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();

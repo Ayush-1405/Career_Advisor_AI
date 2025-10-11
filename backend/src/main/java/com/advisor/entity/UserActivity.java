@@ -22,6 +22,10 @@ public class UserActivity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+    
     @Column(name = "activity_type", nullable = false, length = 50)
     private String activityType;
     
@@ -31,6 +35,11 @@ public class UserActivity {
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    
+    // Alias method for compatibility
+    public LocalDateTime getTimestamp() {
+        return createdAt;
+    }
     
     // Constructor for easy creation
     public UserActivity(Long userId, String activityType, String activityData) {

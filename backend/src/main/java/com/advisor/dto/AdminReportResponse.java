@@ -22,32 +22,32 @@ public class AdminReportResponse {
     private Map<String, Long> userRegistrationsByMonth;
     private Map<String, Long> roleDistribution;
     private LocalDateTime generatedAt;
-}
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserActivityReport {
+        private Long userId;
+        private String userName;
+        private String userEmail;
+        private String activityType;
+        private String activityData;
+        private LocalDateTime timestamp;
+    }
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class UserActivityReport {
-    private Long userId;
-    private String userName;
-    private String userEmail;
-    private String activityType;
-    private String activityData;
-    private LocalDateTime timestamp;
-}
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class ResumeAnalysisReport {
-    private Long analysisId;
-    private Long userId;
-    private String userName;
-    private String resumeFileName;
-    private Double overallScore;
-    private String strengths;
-    private String weaknesses;
-    private LocalDateTime analyzedAt;
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResumeAnalysisReport {
+        private Long analysisId;
+        private Long userId;
+        private String userName;
+        private String resumeFileName;
+        private Double overallScore;
+        private String strengths;
+        private String weaknesses;
+        private LocalDateTime analyzedAt;
+    }
 }
 
 

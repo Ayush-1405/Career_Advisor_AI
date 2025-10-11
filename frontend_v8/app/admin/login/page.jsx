@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiRequest } from '../../../lib/api';
 import Link from 'next/link';
 
 export default function AdminLoginPage() {
@@ -26,49 +27,52 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      // Clear any existing tokens first to prevent conflicts
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('adminAuth');
+      localStorage.removeItem('auth');
+      localStorage.removeItem('user');
+      
+      // Use the centralized API function
+      const data = await apiRequest('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password
         })
       });
 
-      if (response.ok) {
-        const authData = await response.json();
+      if (data && data.token) {
+        // Store the token
+        localStorage.setItem('authToken', data.token);
         
-        // Check if user has admin role
-        if (authData.role === 'ADMIN') {
-          // Store auth token for API calls
-          localStorage.setItem('authToken', authData.token);
+        // Check if user is admin
+        if (data.role === 'ADMIN') {
+          // Store admin auth data with expiration (8 hours from now)
+          const expiresAt = new Date();
+          expiresAt.setHours(expiresAt.getHours() + 8);
           
-          // Store admin session data
-          const adminSession = {
+          const adminAuth = {
             user: {
-              id: authData.userId || 'unknown',
-              name: authData.name,
-              email: authData.email,
-              role: authData.role,
-              permissions: ['read', 'write', 'delete', 'manage_users']
+              name: data.name,
+              email: data.email,
+              role: data.role
             },
-            token: authData.token,
-            expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000) // 8 hours
+            token: data.token,
+            expiresAt: expiresAt.toISOString()
           };
           
-          localStorage.setItem('adminAuth', JSON.stringify(adminSession));
+          localStorage.setItem('adminAuth', JSON.stringify(adminAuth));
           router.push('/admin/dashboard');
         } else {
-          setError('Access denied. Admin privileges required.');
+          setError('You do not have admin privileges');
         }
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Invalid credentials');
+        setError('Invalid response from server');
       }
-    } catch (error) {
-      setError('Login failed. Please try again.');
+    } catch (err) {
+      console.error('Admin login error:', err);
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }

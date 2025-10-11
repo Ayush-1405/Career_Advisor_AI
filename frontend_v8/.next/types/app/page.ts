@@ -1,4 +1,4 @@
-// File: D:\MCA PROJECT\career-advisor\frontend_v8\app\page.jsx
+// File: D:\MCA PROJECT\career-advisor\career-advisor\frontend_v8\app\page.jsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

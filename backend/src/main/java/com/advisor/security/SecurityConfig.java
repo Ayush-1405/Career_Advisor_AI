@@ -2,8 +2,10 @@ package com.advisor.security;
 
 //security/SecurityConfig.java
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,18 +27,26 @@ public class SecurityConfig {
 private final JwtFilter jwtFilter;
 
 @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
- http.csrf(csrf -> csrf.disable())
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+ http
+     .csrf(csrf -> csrf.disable())
      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-     .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
      .authorizeHttpRequests(auth -> auth
          .requestMatchers("/api/auth/**").permitAll()
          .requestMatchers("/api/career-paths/**").permitAll()
+         .requestMatchers("/error").permitAll()
+         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
          .requestMatchers("/api/admin/**").hasRole("ADMIN")
          .anyRequest().authenticated()
      )
-     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+     .exceptionHandling(ex -> ex
+         .authenticationEntryPoint((request, response, authException) -> {
+             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+             response.getWriter().write("Unauthorized: " + authException.getMessage());
+         })
+     );
  return http.build();
 }
 
@@ -55,11 +65,14 @@ public CorsConfigurationSource corsConfigurationSource() {
  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
  CorsConfiguration config = new CorsConfiguration();
  config.setAllowCredentials(true);
- config.addAllowedOriginPattern("http://localhost:3000");
- config.addAllowedOriginPattern("http://127.0.0.1:3000");
- config.addAllowedOriginPattern("http://0.0.0.0:3000");
+ config.addAllowedOrigin("http://localhost:3000");
+ config.addAllowedOrigin("http://127.0.0.1:3000");
+ config.addAllowedOrigin("http://localhost:5500");
+ config.addAllowedOrigin("http://127.0.0.1:5500");
+ config.addAllowedOrigin("file://");
  config.addAllowedHeader("*");
  config.addAllowedMethod("*");
+ config.addExposedHeader("Authorization");
  source.registerCorsConfiguration("/**", config);
  return source;
 }

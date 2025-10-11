@@ -127,7 +127,7 @@ public class AdminUserManagementService {
                         analysis.getResume().getUser().getId(),
                         analysis.getResume().getUser().getName(),
                         analysis.getResume().getFileName(),
-                        analysis.getOverallScore(),
+                        analysis.getOverallScore() != null ? analysis.getOverallScore().doubleValue() : 0.0,
                         analysis.getStrengths(),
                         analysis.getWeaknesses(),
                         analysis.getAnalyzedAt()
@@ -164,7 +164,7 @@ public class AdminUserManagementService {
         );
     }
 
-    private UserProfileDto convertToUserProfileDto(User user) {
+    public UserProfileDto convertToUserProfileDto(User user) {
         return new UserProfileDto(
                 user.getId(),
                 user.getName(),

@@ -19,7 +19,6 @@ export async function apiRequest(path, options = {}) {
 		headers.set('Content-Type', 'application/json');
 	}
 
-	// Attach auth token if present
 	try {
 		const stored = typeof window !== 'undefined' ? localStorage.getItem('auth') : null;
 		if (stored) {
@@ -28,12 +27,19 @@ export async function apiRequest(path, options = {}) {
 		}
 	} catch {}
 
-	const response = await fetch(url, {
-		...options,
-		headers
-	});
+	const response = await fetch(url, { ...options, headers });
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			// Auto logout on 401
+			localStorage.removeItem('auth');
+			localStorage.removeItem('adminAuth');
+			localStorage.removeItem('admin');
+			// sessionStorage.removeItem('adminAuth'); 	
+			if (typeof window !== 'undefined') window.location.href = '/admin/login';
+			throw new Error('Unauthorized. Redirecting to login...');
+		}
+
 		let message = `Request failed (${response.status})`;
 		try {
 			const data = await response.json();
@@ -42,13 +48,74 @@ export async function apiRequest(path, options = {}) {
 		throw new Error(message);
 	}
 
-	// Try JSON, fallback to text
 	const contentType = response.headers.get('content-type') || '';
 	if (contentType.includes('application/json')) {
 		return response.json();
 	}
 	return response.text();
 }
+
+// // ✅ Fetch dashboard statistics
+// export async function fetchDashboardStats() {
+//   return apiRequest('/dashboard/stats', {
+//     method: 'GET',
+//   });
+// }
+
+// // ✅ Track user activity (like dashboard visit, resume upload, etc.)
+// export async function trackUserActivity(activityType, details = '') {
+//   return apiRequest('/user/activity', {
+//     method: 'POST',
+//     body: JSON.stringify({
+//       type: activityType,
+//       details,
+//       timestamp: new Date().toISOString(),
+//     }),
+//   });
+// }
+
+// export async function apiRequest(path, options = {}) {
+// 	const url = buildUrl(path);
+// 	const headers = new Headers(options.headers || {});
+// 	if (!headers.has('Content-Type') && options.body && !(options.body instanceof FormData)) {
+// 		headers.set('Content-Type', 'application/json');
+// 	}
+
+// 	// Attach auth token if present
+// 	try {
+// 		const stored = typeof window !== 'undefined' ? localStorage.getItem('auth') : null;
+// 		if (stored) {
+// 			const { token } = JSON.parse(stored);
+// 			if (token) headers.set('Authorization', `Bearer ${token}`);
+// 		}
+// 	} catch {}
+
+// 	const response = await fetch(url, {
+// 		...options,
+// 		headers
+// 	});
+
+// 	if (!response.ok) {
+//   if (response.status === 401) {
+//     localStorage.removeItem('auth'); // Clear invalid token
+//     window.location.href = '/auth/login'; // Redirect to login
+//   }
+//   let message = `Request failed (${response.status})`;
+//   try {
+//     const data = await response.json();
+//     message = data.message || data.error || message;
+//   } catch {}
+//   throw new Error(message);
+// }
+
+
+// 	// Try JSON, fallback to text
+// 	const contentType = response.headers.get('content-type') || '';
+// 	if (contentType.includes('application/json')) {
+// 		return response.json();
+// 	}
+// 	return response.text();
+// }
 
 // Auth APIs
 export async function loginUser(payload) {
@@ -85,6 +152,8 @@ export async function resetPassword(token, email, newPassword) {
 		method: 'POST'
 	});
 }
+
+
 
 // Career paths
 export async function fetchCareerPaths() {

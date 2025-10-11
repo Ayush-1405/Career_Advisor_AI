@@ -30,6 +30,15 @@ public class DashboardService {
     @Autowired
     private ResumeRepository resumeRepository;
     
+    @Autowired
+    private UserRepository userRepository;
+    
+    public DashboardStatsResponse getUserDashboardStatsByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return getUserDashboardStats(user.getId());
+    }
+    
     public DashboardStatsResponse getUserDashboardStats(Long userId) {
         // Get profile completion data
         Optional<UserProfileCompletion> profileCompletion = profileCompletionRepository.findByUserId(userId);
@@ -59,6 +68,12 @@ public class DashboardService {
             recentActivities.size(),
             recentActivitiesResponse
         );
+    }
+    
+    public void trackUserActivityByEmail(String email, String activityType, String activityData) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        trackUserActivity(user.getId(), activityType, activityData);
     }
     
     public void trackUserActivity(Long userId, String activityType, String activityData) {

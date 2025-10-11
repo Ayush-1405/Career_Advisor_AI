@@ -6,6 +6,7 @@ import com.advisor.repository.*;
 import com.advisor.security.*;
 import com.advisor.service.PasswordResetService;
 import com.advisor.service.DashboardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -27,26 +28,29 @@ public class AuthController {
   private final PasswordResetService passwordResetService;
   private final DashboardService dashboardService;
 
-  @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody @jakarta.validation.Valid RegisterRequest req) {
-    if (userRepository.existsByEmail(req.getEmail())) {
-      return ResponseEntity.badRequest().body("Email already registered");
-    }
-    User u = new User();
-    u.setName(req.getName());
-    u.setEmail(req.getEmail());
-    u.setPassword(passwordEncoder.encode(req.getPassword()));
-    u.setRole(Role.USER);
-    userRepository.save(u);
-    
-    // Track user registration activity
-    dashboardService.trackUserActivity(u.getId(), "user_registration", 
-        "{\"email\":\"" + req.getEmail() + "\",\"name\":\"" + req.getName() + "\"}");
-    
-    return ResponseEntity.ok("Registered");
-  }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
+        System.out.println("Incoming registration: " + req.getEmail());
 
-  @PostMapping("/login")
+        if (userRepository.existsByEmail(req.getEmail())) {
+            return ResponseEntity.badRequest().body("Email already registered");
+        }
+
+        User u = new User();
+        u.setName(req.getName());
+        u.setEmail(req.getEmail());
+        u.setPassword(passwordEncoder.encode(req.getPassword()));
+        u.setRole(Role.USER);
+        userRepository.save(u);
+
+        dashboardService.trackUserActivity(u.getId(), "user_registration",
+                "{\"email\":\"" + req.getEmail() + "\",\"name\":\"" + req.getName() + "\"}");
+
+        return ResponseEntity.ok("Registered");
+    }
+
+
+    @PostMapping("/login")
   public ResponseEntity<AuthResponse> login(@RequestBody @jakarta.validation.Valid LoginRequest req) {
     Authentication auth = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())

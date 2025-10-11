@@ -17,10 +17,9 @@ public class DashboardController {
     @GetMapping("/stats")
     public ResponseEntity<DashboardStatsResponse> getDashboardStats(Authentication authentication) {
         try {
-            // Get user ID from authentication (assuming it's stored as user ID)
-            Long userId = Long.parseLong(authentication.getName());
-            
-            DashboardStatsResponse stats = dashboardService.getUserDashboardStats(userId);
+            // Get user by email from authentication
+            String email = authentication.getName();
+            DashboardStatsResponse stats = dashboardService.getUserDashboardStatsByEmail(email);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             // Return default stats on error
@@ -37,8 +36,8 @@ public class DashboardController {
             @RequestParam(required = false) String activityData,
             Authentication authentication) {
         try {
-            Long userId = Long.parseLong(authentication.getName());
-            dashboardService.trackUserActivity(userId, activityType, activityData);
+            String email = authentication.getName();
+            dashboardService.trackUserActivityByEmail(email, activityType, activityData);
             return ResponseEntity.ok("Activity tracked successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to track activity: " + e.getMessage());

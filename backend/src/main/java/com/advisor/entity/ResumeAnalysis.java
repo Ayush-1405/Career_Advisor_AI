@@ -17,13 +17,25 @@ public class ResumeAnalysis {
   @JoinColumn(name = "resume_id")
   private Resume resume;
 
+  @Column(name = "overall_score")
   private Integer overallScore;
 
-  @Column(length = 2000)
+  @Column(name = "strengths", columnDefinition = "TEXT")
   private String strengths; // comma-separated list
 
-  @Column(length = 2000)
+  @Column(name = "improvements", columnDefinition = "TEXT")
   private String improvements; // comma-separated list
+  
+  @Column(name = "analysis_data", columnDefinition = "JSON")
+  private String analysisData; // Store detailed analysis results
+  
+  @Column(name = "analyzed_at")
+  private java.time.LocalDateTime analyzedAt = java.time.LocalDateTime.now();
+  
+  // Alias method for compatibility
+  public String getWeaknesses() {
+    return improvements;
+  }
 }
 
 

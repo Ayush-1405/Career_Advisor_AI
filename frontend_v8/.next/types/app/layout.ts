@@ -1,4 +1,4 @@
-// File: D:\MCA PROJECT\career-advisor\frontend_v8\app\layout.jsx
+// File: D:\MCA PROJECT\career-advisor\career-advisor\frontend_v8\app\layout.jsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -27,6 +27,24 @@ export default function DashboardPage() {
     } else {
       router.push('/auth/login');
     }
+
+//   useEffect(() => {
+//   const fetchDashboardStats = async () => {
+//     try {
+//       // Ensure the endpoint is correct and any required parameters are passed
+//       const stats = await apiRequest('/api/dashboard/stats', {
+//         method: 'GET', // Or POST, PUT, etc. depending on the API
+//         // If it's a POST/PUT, include a body:
+//         // body: JSON.stringify({ someData: 'value' }),
+//       });
+//       // Process the stats
+//     } catch (error) {
+//       console.error('Failed to load dashboard stats:', error);
+//     }
+//   };
+
+//   fetchDashboardStats();
+// }, []);
     // Load stats after auth
     (async () => {
       try {
@@ -52,11 +70,12 @@ export default function DashboardPage() {
     })();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    router.push('/');
-  };
+  function handleLogout() {
+  localStorage.removeItem('auth');   // Remove token
+  localStorage.removeItem('user'); 
+    // Optional: remove user info
+  router.push('/auth/login');        // Redirect to login page
+}
 
   if (isLoading) {
     return (
@@ -105,6 +124,8 @@ export default function DashboardPage() {
               <Link href="/skills" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Skills Assessment</Link>
               <Link href="/dashboard" className="text-blue-600 font-semibold cursor-pointer">Dashboard</Link>
               <Link href="/ai-assistant" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">AI Assistant</Link>
+              <Link href="/profile" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Profile</Link>
+              
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
