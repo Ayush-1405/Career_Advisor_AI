@@ -124,7 +124,7 @@ export default function DashboardPage() {
               <Link href="/skills" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Skills Assessment</Link>
               <Link href="/dashboard" className="text-blue-600 font-semibold cursor-pointer">Dashboard</Link>
               <Link href="/ai-assistant" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">AI Assistant</Link>
-              <Link href="/" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Profile</Link>
+              <Link href="/profile" className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Profile</Link>
               
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">

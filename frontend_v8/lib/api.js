@@ -92,24 +92,8 @@ export async function fetchAdminResumes() {
 }
 
 export async function fetchAdminAnalytics() {
-  const adminAuth = localStorage.getItem('adminAuth');
-  const token = adminAuth ? JSON.parse(adminAuth).token : null;
-
-  const res = await fetch('http://localhost:8080/api/admin/analytics', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch analytics: ${res.status} ${res.statusText}`);
-  }
-  return res.json();
+  return apiRequest('/api/admin/analytics', { method: 'GET' });
 }
-
-
 
 export async function fetchAdminSettings() {
   return apiRequest('/api/admin/settings', { method: 'GET' });
