@@ -126,11 +126,13 @@ export default function AdminReportsPage() {
               <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">Admin Portal</span>
             </Link>
             <nav className="hidden md:flex space-x-8">
-              <Link href="/admin/dashboard" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Dashboard</Link>
-              <Link href="/admin/users" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Users</Link>
-              <Link href="/admin/resumes" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Resumes</Link>
-              <Link href="/admin/reports" className="text-red-600 font-semibold cursor-pointer">Reports</Link>
-              <Link href="/admin/settings" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Settings</Link>
+              <Link href="/admin/dashboard" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Dashboard</Link>
+              <Link href="/admin/manage" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Manage Users</Link>
+              <Link href="/admin/resumes" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Resumes</Link>
+              <Link href="/admin/career-paths" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Career Paths</Link>
+              <Link href="/admin/analytics" className="text-gray-700 hover:text-red-600 font-semibold cursor-pointer">Analytics</Link>
+              <Link href="/admin/reports" className="text-red-600 transition-colors font-semibold cursor-pointer">Reports</Link>
+              <Link href="/admin/settings" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Settings</Link>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">

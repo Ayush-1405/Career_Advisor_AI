@@ -221,11 +221,13 @@ export default function AdminUsersPage() {
               <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">Admin Portal</span>
             </Link>
             <nav className="hidden md:flex space-x-8">
-              <Link href="/admin/dashboard" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Dashboard</Link>
-              <Link href="/admin/users" className="text-red-600 font-semibold cursor-pointer">Users</Link>
-              <Link href="/admin/resumes" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Resumes</Link>
-              <Link href="/admin/analytics" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Analytics</Link>
-              <Link href="/admin/settings" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Settings</Link>
+              <Link href="/admin/dashboard" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Dashboard</Link>
+              <Link href="/admin/manage" className="text-red-600 transition-colors font-semibold cursor-pointer">Manage Users</Link>
+              <Link href="/admin/resumes" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Resumes</Link>
+              <Link href="/admin/career-paths" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Career Paths</Link>
+              <Link href="/admin/analytics" className="text-gray-700 hover:text-red-600 font-semibold cursor-pointer">Analytics</Link>
+              <Link href="/admin/reports" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Reports</Link>
+              <Link href="/admin/settings" className="text-gray-700 hover:text-red-600 transition-colors font-semibold cursor-pointer">Settings</Link>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -253,6 +255,7 @@ export default function AdminUsersPage() {
               <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
               <p className="text-gray-600 mt-2">Manage user accounts, roles, and permissions</p>
             </div>
+            
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <input
@@ -292,7 +295,7 @@ export default function AdminUsersPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manage User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email Verified</th>

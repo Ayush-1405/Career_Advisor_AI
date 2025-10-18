@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiRequest } from '../../../lib/api';
 import Link from 'next/link';
+
+import { apiRequest } from '../../../lib/api';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -27,52 +28,68 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      // Clear any existing tokens first to prevent conflicts
+      // Clear any existing tokens
       localStorage.removeItem('authToken');
       localStorage.removeItem('adminAuth');
-      localStorage.removeItem('auth');
-      localStorage.removeItem('user');
-      
-      // Use the centralized API function
-      const data = await apiRequest('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        })
-      });
 
-      if (data && data.token) {
-        // Store the token
-        localStorage.setItem('authToken', data.token);
-        
-        // Check if user is admin
-        if (data.role === 'ADMIN') {
-          // Store admin auth data with expiration (8 hours from now)
-          const expiresAt = new Date();
-          expiresAt.setHours(expiresAt.getHours() + 8);
-          
-          const adminAuth = {
-            user: {
-              name: data.name,
-              email: data.email,
-              role: data.role
-            },
-            token: data.token,
-            expiresAt: expiresAt.toISOString()
-          };
-          
-          localStorage.setItem('adminAuth', JSON.stringify(adminAuth));
-          router.push('/admin/dashboard');
-        } else {
-          setError('You do not have admin privileges');
-        }
-      } else {
-        setError('Invalid response from server');
+      // Send login request
+     const response = await fetch('http://localhost:8080/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(formData)
+});
+
+
+      // Handle response errors
+      if (response.status === 401) {
+        setError('Invalid email or password. Please try again.');
+        return;
+      } else if (response.status === 403) {
+        setError('You do not have permission to access the admin portal.');
+        return;
+      } else if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Server error: ${response.status}`;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {}
+        setError(errorMessage);
+        return;
       }
-    } catch (err) {
-      console.error('Admin login error:', err);
-      setError(err.message || 'Login failed. Please check your credentials.');
+
+      const data = await response.json();
+
+      // Validate role
+      if (!data.role || data.role.toUpperCase() !== 'ADMIN') {
+        setError('Access denied. Admin privileges required.');
+        return;
+      }
+
+      // Store token and session
+      //const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000); // 8 hours
+      const adminAuth = {
+        user: {
+          id: data.userId || 'unknown',
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          permissions: ['read', 'write', 'delete', 'manage_users']
+        },
+        token: data.token,
+        
+        //expiresAt: expiresAt.toISOString()
+      };
+
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('adminAuth', JSON.stringify(adminAuth));
+
+      router.push('/admin/dashboard');
+
+
+    } catch (error) {
+      console.error('Admin login error:', error);
+      setError(error.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -88,11 +105,17 @@ export default function AdminLoginPage() {
               <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg flex items-center justify-center">
                 <i className="ri-shield-user-line text-white text-lg"></i>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">Admin Portal</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                Admin Portal
+              </span>
             </Link>
             <nav className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">Back to Main Site</Link>
-              <Link href="/auth/login" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">User Login</Link>
+              <Link href="/" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">
+                Back to Main Site
+              </Link>
+              <Link href="/auth/login" className="text-gray-700 hover:text-red-600 transition-colors cursor-pointer">
+                User Login
+              </Link>
             </nav>
           </div>
         </div>

@@ -52,10 +52,11 @@ public class AuthController {
 
     @PostMapping("/login")
   public ResponseEntity<AuthResponse> login(@RequestBody @jakarta.validation.Valid LoginRequest req) {
-    Authentication auth = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
-    );
-    User u = userRepository.findByEmail(req.getEmail()).orElseThrow();
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
+        );
+
+        User u = userRepository.findByEmail(req.getEmail()).orElseThrow();
     
     // Update last login time
     u.setLastLogin(java.time.LocalDateTime.now());
