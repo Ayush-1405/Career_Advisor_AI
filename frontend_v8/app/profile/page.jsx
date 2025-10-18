@@ -30,7 +30,9 @@ export default function UserProfilePage() {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const stored = localStorage.getItem('auth') || localStorage.getItem('adminAuth');
+const token = stored ? JSON.parse(stored).token : null;
+
       if (!token) {
         router.push('/auth/login');
         return;

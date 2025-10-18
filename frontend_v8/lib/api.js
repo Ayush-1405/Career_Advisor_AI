@@ -80,8 +80,27 @@ export async function trackUserActivity(activityType, activityData = null) {
 
 // Admin dashboard
 export async function fetchAdminDashboardStats() {
-  return apiRequest('/api/admin/dashboard/stats', { method: 'GET' });
+  const stored = localStorage.getItem("adminAuth");
+  if (!stored) throw new Error("Admin not logged in");
+
+  const { token } = JSON.parse(stored);
+
+  const res = await fetch("http://localhost:8080/api/admin/dashboard/stats", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Error ${res.status}: ${errorText}`);
+  }
+
+  return res.json();
 }
+
 
 export async function fetchAdminUsers() {
   return apiRequest('/api/admin/users', { method: 'GET' });
@@ -92,8 +111,13 @@ export async function fetchAdminResumes() {
 }
 
 export async function fetchAdminAnalytics() {
-  return apiRequest('/api/admin/analytics', { method: 'GET' });
+  return apiRequest('/admin/analytics', { method: 'GET' });
 }
+
+
+
+ 
+
 
 export async function fetchAdminSettings() {
   return apiRequest('/api/admin/settings', { method: 'GET' });
